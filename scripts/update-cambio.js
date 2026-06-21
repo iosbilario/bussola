@@ -17,6 +17,33 @@ function fmt(d) {
   return mm + "-" + dd + "-" + d.getUTCFullYear();
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// olinda (BACEN) costuma devolver 502/503 intermitente sob carga — tentamos
+// algumas vezes com backoff antes de desistir.
+async function fetchComRetry(url, tentativas = 5) {
+  let ultimoErro;
+  for (let i = 0; i < tentativas; i++) {
+    try {
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (res.ok) return res.json();
+      // 5xx e 429 são transitórios; 4xx (exceto 429) não adianta repetir
+      if (res.status < 500 && res.status !== 429) {
+        throw new Error(`HTTP ${res.status} (definitivo)`);
+      }
+      ultimoErro = new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      ultimoErro = err; // erro de rede também é transitório
+    }
+    if (i < tentativas - 1) {
+      const espera = 1000 * Math.pow(2, i); // 1s, 2s, 4s, 8s
+      console.warn(`  tentativa ${i + 1} falhou (${ultimoErro.message}) — repetindo em ${espera}ms`);
+      await sleep(espera);
+    }
+  }
+  throw ultimoErro;
+}
+
 async function cotacaoVenda(moeda) {
   const hoje = new Date();
   const dezDiasAtras = new Date(hoje.getTime() - 10 * 24 * 3600 * 1000);
@@ -26,10 +53,9 @@ async function cotacaoVenda(moeda) {
     `&@dataInicial='${fmt(dezDiasAtras)}'` +
     `&@dataFinalCotacao='${fmt(hoje)}'` +
     `&$top=1&$orderby=dataHoraCotacao%20desc&$format=json`;
-  const url = BASE + q;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!res.ok) throw new Error(`${moeda}: HTTP ${res.status}`);
-  const json = await res.json();
+  const json = await fetchComRetry(BASE + q).catch((e) => {
+    throw new Error(`${moeda}: ${e.message}`);
+  });
   const row = json && json.value && json.value[0];
   if (!row || typeof row.cotacaoVenda !== "number") {
     throw new Error(`${moeda}: sem cotação no período`);
