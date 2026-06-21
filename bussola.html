@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bússola · quanto cai no seu bolso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Martian+Mono:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cofre:#0E1611; --cofre-2:#13201A; --cofre-3:#182A21;
+    --papel:#ECE4D2; --papel-2:#E3DAC4; --dobra:#D4C9AC;
+    --tinta:#16201A; --tinta-2:#5C6258;
+    --ambar:#E0922E; --ambar-cl:#F2B85C;
+    --carimbo:#B23A2B; --carimbo-cl:#D5644F;
+    --aco:#7CA0AC;
+    --giz:#CBD3C7; --giz-2:#7C8B7F;
+    --linha:rgba(203,211,199,.12); --linha-2:rgba(203,211,199,.07);
+    --papel-grain:repeating-linear-gradient(0deg,rgba(0,0,0,.012) 0 1px,transparent 1px 3px);
+    --zig:7px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--cofre);color:var(--giz);
+    font-family:'Hanken Grotesk',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 600px at 80% -10%, rgba(124,160,172,.07), transparent 60%),
+      radial-gradient(700px 500px at -5% 110%, rgba(224,146,46,.05), transparent 55%);
+    min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 80px}
+  .mono{font-family:'Spline Sans Mono',ui-monospace,monospace}
+  .num{font-family:'Martian Mono',monospace;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+  ::selection{background:var(--ambar);color:var(--cofre)}
+  a{color:inherit}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  :focus-visible{outline:2px solid var(--ambar);outline-offset:3px;border-radius:3px}
+
+  .mesa{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 0 18px;border-bottom:1px solid var(--linha);flex-wrap:wrap}
+  .marca{display:flex;align-items:center;gap:12px}
+  .rosa{width:34px;height:34px;flex:0 0 auto}
+  .marca h1{font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .marca .tag{font-size:11.5px;color:var(--giz-2);letter-spacing:.02em;margin-top:3px}
+  .ticker{display:flex;border:1px solid var(--linha);border-radius:4px;overflow:hidden;background:linear-gradient(180deg,var(--cofre-2),var(--cofre))}
+  .tk{padding:9px 15px;display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--linha-2)}
+  .tk:last-child{border-right:none}
+  .tk .lab{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--giz-2)}
+  .tk .val{font-size:17px;color:var(--aco)}
+  .tk .val b{color:var(--giz);font-weight:600}
+  .vivo{display:flex;align-items:center;gap:7px;padding:9px 15px;font-size:10.5px;color:var(--giz-2);letter-spacing:.04em;background:rgba(124,160,172,.06)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ambar);animation:pulse 2.4s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,146,46,.55)}70%{box-shadow:0 0 0 8px rgba(224,146,46,0)}100%{box-shadow:0 0 0 0 rgba(224,146,46,0)}}
+
+  .entrada{margin-top:34px;display:grid;grid-template-columns:1.35fr .9fr;gap:26px;align-items:end}
+  .campo .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--giz-2);margin-bottom:14px;display:flex;align-items:center;gap:9px}
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--ambar)}
+  .valbox{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--linha);padding-bottom:10px;transition:border-color .25s}
+  .valbox:focus-within{border-color:var(--ambar)}
+  .cur{font-size:30px;color:var(--aco);font-weight:500;flex:0 0 auto}
+  #valor{background:none;border:none;color:var(--giz);width:100%;font-family:'Martian Mono',monospace;font-variant-numeric:tabular-nums;letter-spacing:-.05em;font-size:clamp(38px,9vw,68px);font-weight:600;padding:0;min-width:0}
+  #valor:focus{outline:none}
+  .slider{width:100%;margin-top:20px;-webkit-appearance:none;appearance:none;height:2px;background:var(--linha);border-radius:2px;outline-offset:6px}
+  .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--ambar);cursor:grab;border:3px solid var(--cofre);box-shadow:0 0 0 1px var(--ambar)}
+  .slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--ambar);cursor:grab;border:3px solid var(--cofre);box-shadow:0 0 0 1px var(--ambar)}
+  .escala{display:flex;justify-content:space-between;font-size:10.5px;color:var(--giz-2);margin-top:8px}
+  .controles{display:flex;flex-direction:column;gap:20px}
+  .seg-lab{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--giz-2);margin-bottom:9px}
+  .seg{display:inline-flex;border:1px solid var(--linha);border-radius:5px;overflow:hidden;background:var(--cofre-2)}
+  .seg button{padding:11px 17px;font-size:13.5px;font-weight:500;color:var(--giz-2);border-right:1px solid var(--linha-2);transition:color .18s,background .18s;white-space:nowrap}
+  .seg button:last-child{border-right:none}
+  .seg button[aria-pressed="true"]{background:var(--ambar);color:#1a1206;font-weight:600}
+  .seg.freq button{padding:11px 14px}
+
+  .heroi{margin-top:48px}
+  .cabec{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:8px}
+  .cabec h2{font-size:clamp(24px,4.2vw,34px);font-weight:700;letter-spacing:-.025em;line-height:1.05}
+  .cabec p{font-size:13.5px;color:var(--giz-2);max-width:38ch}
+  .regua{margin:22px 0 26px;padding:14px 18px;border:1px dashed rgba(124,160,172,.4);border-radius:5px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:rgba(124,160,172,.05)}
+  .regua .rl{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--aco)}
+  .regua .rv{font-size:24px;color:var(--giz)}
+  .regua .rn{font-size:12.5px;color:var(--giz-2);flex:1;min-width:200px}
+
+  .fitas{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .fita{position:relative;background:var(--papel);color:var(--tinta);padding:20px 18px;display:flex;flex-direction:column;
+    -webkit-mask:conic-gradient(from -45deg at bottom,#0000 25%,#000 0) 0 100%/calc(var(--zig)*2) var(--zig) repeat-x,conic-gradient(from 135deg at top,#0000 25%,#000 0) 0 0/calc(var(--zig)*2) var(--zig) repeat-x,linear-gradient(#000 0 0) 0 var(--zig)/100% calc(100% - var(--zig)*2) no-repeat;
+            mask:conic-gradient(from -45deg at bottom,#0000 25%,#000 0) 0 100%/calc(var(--zig)*2) var(--zig) repeat-x,conic-gradient(from 135deg at top,#0000 25%,#000 0) 0 0/calc(var(--zig)*2) var(--zig) repeat-x,linear-gradient(#000 0 0) 0 var(--zig)/100% calc(100% - var(--zig)*2) no-repeat;
+    background-image:var(--papel-grain),linear-gradient(180deg,var(--papel),var(--papel-2))}
+  .fita.vence{box-shadow:0 0 0 2px var(--ambar),0 14px 34px -18px rgba(224,146,46,.6)}
+  .fita.pior{opacity:.93}
+  .fhead{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding-bottom:11px;margin-top:4px;border-bottom:1px solid var(--dobra)}
+  .fnome{font-size:15px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+  .fsub{font-size:10.5px;color:var(--tinta-2);margin-top:2px}
+  .modelo{display:inline-block;margin-top:7px;font-family:'Spline Sans Mono',monospace;font-size:9.5px;letter-spacing:.03em;padding:2px 6px;border-radius:3px}
+  .modelo.comercial{color:#2c5b4f;background:rgba(44,91,79,.1);border:1px solid rgba(44,91,79,.25)}
+  .modelo.spread{color:var(--carimbo);background:rgba(178,58,43,.08);border:1px solid rgba(178,58,43,.22)}
+  .selo{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:3px;white-space:nowrap;flex:0 0 auto}
+  .selo.win{background:var(--ambar);color:#1a1206}
+  .selo.bad{background:rgba(178,58,43,.13);color:var(--carimbo);border:1px solid rgba(178,58,43,.3)}
+  .linhas{margin:12px 0 4px;display:flex;flex-direction:column}
+  .ln{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-family:'Spline Sans Mono',monospace;font-size:12px;padding:4.5px 0;border-bottom:1px dotted var(--dobra)}
+  .ln .k{color:var(--tinta-2);font-size:11px}
+  .ln .v{font-variant-numeric:tabular-nums;color:var(--tinta);white-space:nowrap}
+  .ln .v.neg{color:var(--carimbo)}
+  .ln .v.mut{color:var(--tinta-2)}
+  .ln.base .k{color:#2c5b4f}.ln.base .v{color:#2c5b4f}
+  .total{margin-top:14px;padding-top:13px;border-top:2px dashed var(--dobra)}
+  .total .tk{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-2);display:block}
+  .total .tv{font-family:'Martian Mono',monospace;font-variant-numeric:tabular-nums;letter-spacing:-.045em;font-size:clamp(23px,3.4vw,29px);font-weight:600;color:var(--tinta);display:block;margin-top:3px;line-height:1}
+  .fita.vence .total .tv{color:#9a5e12}
+  .mordida{margin-top:13px}
+  .mordida .mtop{display:flex;justify-content:space-between;font-family:'Spline Sans Mono',monospace;font-size:10.5px;color:var(--tinta-2);margin-bottom:6px}
+  .mordida .mtop b{color:var(--carimbo);font-weight:600}
+  .bar{height:6px;background:rgba(22,32,26,.1);border-radius:3px;overflow:hidden}
+  .bar i{display:block;height:100%;background:repeating-linear-gradient(45deg,var(--carimbo) 0 5px,var(--carimbo-cl) 5px 10px);transition:width .5s cubic-bezier(.22,1,.36,1)}
+  .cta{margin-top:16px}
+  .cta a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 13px;border:1.5px solid var(--tinta);border-radius:4px;font-size:13px;font-weight:600;text-decoration:none;color:var(--tinta);transition:background .15s,color .15s}
+  .cta a:hover{background:var(--tinta);color:var(--papel)}
+  .cta .afil{display:block;font-size:9.5px;color:var(--tinta-2);margin-top:7px;line-height:1.35}
+  .cta.nope{display:flex;flex-direction:column;gap:7px}
+  .cta.nope span{font-size:11px;color:var(--tinta-2);font-family:'Spline Sans Mono',monospace}
+  .arrow{font-size:15px;line-height:1}
+
+  .sangria{margin-top:52px;border-top:1px solid var(--linha);padding-top:42px;display:grid;grid-template-columns:1fr 1.1fr;gap:38px;align-items:center}
+  .sangria .stamp{justify-self:start;border:2.5px solid var(--carimbo);color:var(--carimbo);padding:18px 26px 20px;border-radius:6px;transform:rotate(-2.2deg);background:rgba(178,58,43,.04)}
+  .stamp .sk{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .stamp .sv{font-family:'Martian Mono',monospace;font-variant-numeric:tabular-nums;letter-spacing:-.05em;font-size:clamp(40px,8vw,66px);font-weight:700;line-height:1;margin:6px 0 2px}
+  .stamp .sp{font-size:12px;letter-spacing:.04em}
+  .sangria .sexpl h3{font-size:clamp(20px,3.4vw,27px);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:12px}
+  .sangria .sexpl p{font-size:14px;color:var(--giz-2);max-width:48ch}
+  .sangria .sexpl p b{color:var(--giz);font-weight:600}
+  .sangria .sexpl .det{margin-top:14px;font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--aco)}
+
+  .metodo{margin-top:60px;border-top:1px solid var(--linha);padding-top:34px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+  .metodo h4{font-size:12px;color:var(--giz);font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+  .metodo h4 i{font-family:'Spline Sans Mono',monospace;font-style:normal;color:var(--ambar);font-size:12px}
+  .metodo p{font-size:12.5px;color:var(--giz-2);line-height:1.6}
+  .metodo p b{color:var(--giz);font-weight:600}
+  .creditos{margin-top:34px;font-size:11px;color:var(--giz-2);font-family:'Spline Sans Mono',monospace;line-height:1.7}
+  .creditos b{color:var(--aco);font-weight:500}
+
+  @media (max-width:920px){.fitas{grid-template-columns:repeat(2,1fr)}.entrada{grid-template-columns:1fr;gap:30px}.sangria{grid-template-columns:1fr;gap:26px}.metodo{grid-template-columns:1fr;gap:22px}}
+  @media (max-width:560px){.wrap{padding:0 16px 64px}.fitas{grid-template-columns:1fr}.ticker{width:100%}.tk{flex:1}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mesa">
+    <div class="marca">
+      <svg class="rosa" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="18.5" fill="none" stroke="rgba(203,211,199,.22)" stroke-width="1"/>
+        <circle cx="20" cy="20" r="13" fill="none" stroke="rgba(203,211,199,.12)" stroke-width="1"/>
+        <polygon points="20,4 23,20 20,17 17,20" fill="#B23A2B"/>
+        <polygon points="20,36 17,20 20,23 23,20" fill="#E0922E"/>
+        <circle cx="20" cy="20" r="1.8" fill="#CBD3C7"/>
+      </svg>
+      <div>
+        <h1>Bússola</h1>
+        <div class="tag">a camada de decisão do câmbio para quem recebe de fora</div>
+      </div>
+    </div>
+    <div class="ticker" aria-label="câmbio comercial de referência">
+      <div class="tk"><span class="lab">USD comercial</span><span class="val">R$ <b id="tkUSD">5,4000</b></span></div>
+      <div class="tk"><span class="lab">EUR comercial</span><span class="val">R$ <b id="tkEUR">5,8500</b></span></div>
+      <div class="vivo"><span class="dot"></span><span>dado vivo · atualizado há <span id="ago" class="mono">0s</span></span></div>
+    </div>
+  </header>
+
+  <section class="entrada">
+    <div class="campo">
+      <div class="eyebrow">Quanto você recebe de fora</div>
+      <div class="valbox">
+        <span class="cur" id="cur">US$</span>
+        <input id="valor" inputmode="decimal" value="3.000" aria-label="valor recebido do exterior" autocomplete="off">
+      </div>
+      <input id="slider" class="slider" type="range" min="200" max="40000" step="100" value="3000" aria-label="ajustar valor">
+      <div class="escala"><span>US$ 200</span><span>US$ 40.000</span></div>
+    </div>
+    <div class="controles">
+      <div>
+        <div class="seg-lab">Moeda do cliente</div>
+        <div class="seg" id="moeda" role="group" aria-label="moeda">
+          <button data-cur="USD" aria-pressed="true">Dólar · USD</button>
+          <button data-cur="EUR" aria-pressed="false">Euro · EUR</button>
+        </div>
+      </div>
+      <div>
+        <div class="seg-lab">Com que frequência</div>
+        <div class="seg freq" id="freq" role="group" aria-label="frequência">
+          <button data-f="12" aria-pressed="true">Mensal</button>
+          <button data-f="24" aria-pressed="false">Quinzenal</button>
+          <button data-f="52" aria-pressed="false">Semanal</button>
+          <button data-f="1" aria-pressed="false">Pontual</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="heroi">
+    <div class="cabec">
+      <h2>Quanto cai no seu bolso</h2>
+      <p>O mesmo valor, quatro caminhos. Cada um tira sua fatia de um jeito — uns no câmbio, outros em taxa. Tudo aberto. O topo é de quem te entrega mais real.</p>
+    </div>
+    <div class="regua">
+      <span class="rl">câmbio comercial</span>
+      <span class="rv num">R$ <span id="reguaVal">16.200,00</span></span>
+      <span class="rn">a conta que os enviesados não te mostram: o real puro, antes de qualquer corte. É a régua contra a qual medimos todo mundo.</span>
+    </div>
+    <div class="fitas" id="fitas"></div>
+  </section>
+
+  <section class="sangria">
+    <div class="stamp" role="img" aria-label="perda anual estimada">
+      <span class="sk">você deixa na mesa</span>
+      <span class="sv num">R$&nbsp;<span id="perda">7.393</span></span>
+      <span class="sp" id="perdaPer">por ano</span>
+    </div>
+    <div class="sexpl">
+      <h3>Escolher errado custa caro — todo mês, em silêncio.</h3>
+      <p>Recebendo <b id="exVal">US$ 3.000</b> <b id="exFreq">por mês</b> na pior opção em vez da melhor, essa é a diferença que some do seu bolso <span id="exPer">por ano</span>. O IOF é igual pra todos — o que separa é spread e taxa, e é aí que mora a perda.</p>
+      <div class="det" id="exDet">melhor: Wise · pior: Banco tradicional · diferença por recebimento: R$ 616,06</div>
+    </div>
+  </section>
+
+  <section class="metodo">
+    <div>
+      <h4><i>01</i> Cada um corta de um jeito</h4>
+      <p>Wise e Husky usam o <b>câmbio comercial</b> e cobram uma <b>taxa explícita</b> (fee ou operacional). Remessa e banco embutem um <b>spread</b> no próprio câmbio — por isso o "câmbio aplicado" já vem pior. A Bússola separa as duas coisas pra você ver onde cada centavo sai.</p>
+    </div>
+    <div>
+      <h4><i>02</i> Por que confiar</h4>
+      <p>Quem compara hoje está vendendo: o conteúdo da Nomad conclui que a Nomad ganha; o da Wise, que a Wise ganha. A Bússola <b>não torce por ninguém</b>. O ranking é só matemática — vence quem deixa mais real no seu bolso naquele valor e câmbio.</p>
+    </div>
+    <div>
+      <h4><i>03</i> Sobre os links</h4>
+      <p>O botão <b>abrir conta</b> é link de afiliado e ajuda a manter a Bússola de pé. Ele <b>nunca</b> mexe na ordem — se o banco ganhasse, o banco viria em primeiro. Nesta demonstração os números são de referência; em produção, câmbio e tarifas são atualizados por automação.</p>
+    </div>
+  </section>
+
+  <div class="creditos">
+    <b>fonte:</b> câmbio comercial PTAX (Banco Central) + tabela de tarifas dos provedores · atualização automática &nbsp;·&nbsp; <b>tributo:</b> IOF 0,38% sobre o valor convertido &nbsp;·&nbsp; valores de referência para demonstração
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── parâmetros de referência (em produção: automação PTAX + tarifas.json) ──
+  var COMERCIAL = { USD: 5.40, EUR: 5.85 };
+  var IOF = 0.0038;
+  var SYM = { USD: 'US$', EUR: '€' };
+
+  // cada provedor declara seu MODELO real de custo
+  var PROV = [
+    { id:'wise', nome:'Wise', sub:'recebimento multimoeda', modelo:'comercial', link:true,
+      modeloTag:'câmbio comercial + fee',
+      fee:function(v,c){ var taxa = v<=5000 ? 0.0060 : 0.0045; return { spreadPct:0, custoBRL:v*c*taxa, custoLabel:'Fee de conversão', custoDesc:pct(taxa) }; } },
+    { id:'husky', nome:'Husky by Nomad', sub:'conta global integrada', modelo:'comercial', link:true,
+      modeloTag:'câmbio comercial + taxa op.',
+      fee:function(v,c){ if(v<=1000) return { spreadPct:0, custoBRL:10*c, custoLabel:'Taxa operacional', custoDesc:'US$ 10 fixo' };
+                         return { spreadPct:0, custoBRL:v*c*0.01, custoLabel:'Taxa operacional', custoDesc:'1,00%' }; } },
+    { id:'remessa', nome:'Remessa Online', sub:'foco em PJ exportador', modelo:'spread', link:true,
+      modeloTag:'spread embutido',
+      fee:function(v,c){ return { spreadPct:0.012, custoBRL:0, custoLabel:'Spread', custoDesc:'1,2%' }; } },
+    { id:'banco', nome:'Banco tradicional', sub:'ordem de pagamento', modelo:'spread', link:false,
+      modeloTag:'spread + tarifa fixa',
+      fee:function(v,c){ return { spreadPct:0.038, custoBRL:0, tarifaBRL:100, tarifaLabel:'Tarifa de ordem de pagamento', custoLabel:'Spread', custoDesc:'3,8%' }; } }
+  ];
+  function pct(x){ return (x*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%'; }
+
+  var state = { valor:3000, moeda:'USD', freq:12 };
+
+  var fmtBRL = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+  function brl(n){ return fmtBRL.format(n); }
+  function num4(n){ return n.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4}); }
+  function int(n){ return Math.round(n).toLocaleString('pt-BR'); }
+  function curFmt(n,m){ return SYM[m]+' '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  // ── motor: gera as LINHAS reais de decomposição por provedor ──
+  function quote(p){
+    var c = COMERCIAL[state.moeda], v = state.valor;
+    var brutoComercial = v*c;
+    var f = p.fee(v,c);
+    var efetivo = c*(1-f.spreadPct);
+    var convertido = v*efetivo;
+    var iof = convertido*IOF;
+    var custoFee = p.modelo==='comercial' ? f.custoBRL : 0;
+    var tarifa = f.tarifaBRL||0;
+    var liquido = convertido - iof - custoFee - tarifa;
+
+    var linhas = [{ k:'Recebido', v:curFmt(v,state.moeda), cls:'' }];
+    if(p.modelo==='comercial'){
+      linhas.push({ k:'Câmbio comercial', v:num4(c), cls:'base' });
+      linhas.push({ k:'Convertido', v:brl(convertido), cls:'' });
+      linhas.push({ k:f.custoLabel+' ('+f.custoDesc+')', v:'− '+brl(custoFee), cls:'neg' });
+    } else {
+      linhas.push({ k:'Câmbio comercial', v:num4(c), cls:'mut' });
+      linhas.push({ k:'Câmbio aplicado (−'+f.custoDesc+')', v:num4(efetivo), cls:'neg' });
+      linhas.push({ k:'Convertido', v:brl(convertido), cls:'' });
+    }
+    linhas.push({ k:'IOF 0,38%', v:'− '+brl(iof), cls:'neg' });
+    if(tarifa>0) linhas.push({ k:f.tarifaLabel, v:'− '+brl(tarifa), cls:'neg' });
+
+    return { p:p, linhas:linhas, liquido:liquido, mordida:brutoComercial-liquido, mordidaPct:(brutoComercial-liquido)/brutoComercial, brutoComercial:brutoComercial };
+  }
+
+  function animate(el,to,fmt){
+    if(reduce){ el.textContent=fmt(to); return; }
+    var from=parseFloat(el.getAttribute('data-v')||'0');
+    if(from===to){ el.textContent=fmt(to); return; }
+    el.setAttribute('data-v',to);
+    var t0=null,dur=480;
+    function step(ts){ if(!t0)t0=ts; var k=Math.min(1,(ts-t0)/dur); var e=1-Math.pow(1-k,3); el.textContent=fmt(from+(to-from)*e); if(k<1)requestAnimationFrame(step); else el.textContent=fmt(to); }
+    requestAnimationFrame(step);
+  }
+
+  var fitasEl = document.getElementById('fitas');
+
+  function render(){
+    var c = COMERCIAL[state.moeda];
+    document.getElementById('reguaVal').textContent = (state.valor*c).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+    var rows = PROV.map(quote).sort(function(a,b){ return b.liquido-a.liquido; });
+    fitasEl.innerHTML = '';
+    rows.forEach(function(r,i){
+      var p=r.p, win=i===0, bad=i===rows.length-1;
+      var card=document.createElement('div');
+      card.className='fita'+(win?' vence':'')+(bad?' pior':'');
+      var selo = win?'<span class="selo win">mais real no bolso</span>':bad?'<span class="selo bad">mais cara</span>':'';
+      var lns = r.linhas.map(function(l){ return '<div class="ln '+(l.cls==='base'?'base':'')+'"><span class="k">'+l.k+'</span><span class="v '+(l.cls==='neg'?'neg':l.cls==='mut'?'mut':'')+'">'+l.v+'</span></div>'; }).join('');
+      var cta = p.link
+        ? '<div class="cta"><a href="#abrir-'+p.id+'" aria-label="abrir conta na '+p.nome+', link de afiliado">Abrir conta<span class="arrow">→</span></a><span class="afil">link de afiliado · não altera o ranking</span></div>'
+        : '<div class="cta nope"><span>conta via gerente / agência</span></div>';
+      card.innerHTML =
+        '<div class="fhead"><div><div class="fnome">'+p.nome+'</div><div class="fsub">'+p.sub+'</div>'
+        + '<span class="modelo '+p.modelo+'">'+p.modeloTag+'</span></div>'+selo+'</div>'
+        + '<div class="linhas">'+lns+'</div>'
+        + '<div class="total"><span class="tk">cai no seu bolso</span><span class="tv num" data-liq="'+p.id+'">R$ 0</span></div>'
+        + '<div class="mordida"><div class="mtop"><span>perdido pra spread + taxa</span><b>− '+brl(r.mordida)+' · '+(r.mordidaPct*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%</b></div>'
+        +   '<div class="bar"><i style="width:'+Math.max(4,Math.min(100,r.mordidaPct*100/0.06*100)).toFixed(1)+'%"></i></div></div>'
+        + cta;
+      fitasEl.appendChild(card);
+      animate(card.querySelector('[data-liq]'), r.liquido, function(x){ return brl(x); });
+    });
+
+    var melhor=rows[0], pior=rows[rows.length-1];
+    var dif=melhor.liquido-pior.liquido, total=dif*state.freq, pontual=state.freq===1;
+    animate(document.getElementById('perda'), total, function(x){ return int(x); });
+    document.getElementById('perdaPer').textContent = pontual?'nesta operação':'por ano';
+    document.getElementById('exPer').textContent = pontual?'nesta transferência':'por ano';
+    document.getElementById('exVal').textContent = curFmt(state.valor,state.moeda).replace(',00','');
+    document.getElementById('exFreq').textContent = {12:'por mês',24:'a cada quinzena',52:'por semana',1:'de forma pontual'}[state.freq];
+    document.getElementById('exDet').textContent = 'melhor: '+melhor.p.nome+' · pior: '+pior.p.nome+' · diferença por recebimento: '+brl(dif);
+  }
+
+  function parseVal(raw){ var s=String(raw).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'); var n=parseFloat(s); return isNaN(n)?0:n; }
+
+  var valorEl=document.getElementById('valor'), sliderEl=document.getElementById('slider');
+  valorEl.addEventListener('input',function(){ var n=parseVal(valorEl.value); state.valor=n; if(n>=200&&n<=40000)sliderEl.value=n; render(); });
+  valorEl.addEventListener('blur',function(){ valorEl.value=state.valor.toLocaleString('pt-BR'); });
+  sliderEl.addEventListener('input',function(){ state.valor=parseFloat(sliderEl.value); valorEl.value=state.valor.toLocaleString('pt-BR'); render(); });
+  document.getElementById('moeda').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; state.moeda=b.getAttribute('data-cur'); [].forEach.call(this.children,function(x){x.setAttribute('aria-pressed',x===b);}); document.getElementById('cur').textContent=SYM[state.moeda]; render(); });
+  document.getElementById('freq').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; state.freq=parseFloat(b.getAttribute('data-f')); [].forEach.call(this.children,function(x){x.setAttribute('aria-pressed',x===b);}); render(); });
+
+  var t0=Date.now(), agoEl=document.getElementById('ago');
+  if(!reduce) setInterval(function(){ var s=Math.floor((Date.now()-t0)/1000); agoEl.textContent=s<60?s+'s':Math.floor(s/60)+'min'; },1000);
+  document.getElementById('tkUSD').textContent=num4(COMERCIAL.USD);
+  document.getElementById('tkEUR').textContent=num4(COMERCIAL.EUR);
+
+  render();
+})();
+</script>
+</body>
+</html>

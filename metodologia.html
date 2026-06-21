@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bússola · metodologia & divulgação</title>
+<meta name="description" content="Como a Bússola calcula quanto cai no seu bolso: fontes, IOF, a regra de neutralidade e a divulgação de afiliados.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Martian+Mono:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cofre:#0E1611; --cofre-2:#13201A;
+    --papel:#ECE4D2;
+    --tinta:#16201A; --tinta-2:#5C6258;
+    --ambar:#E0922E; --carimbo:#B23A2B; --aco:#7CA0AC;
+    --giz:#CBD3C7; --giz-2:#7C8B7F;
+    --linha:rgba(203,211,199,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--cofre);color:var(--giz);
+    font-family:'Hanken Grotesk',system-ui,sans-serif;line-height:1.62;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(900px 600px at 80% -10%, rgba(124,160,172,.07), transparent 60%);
+    min-height:100vh;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 22px 90px}
+  a{color:var(--ambar)}
+  .mono{font-family:'Spline Sans Mono',monospace}
+  .num{font-family:'Martian Mono',monospace;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+  ::selection{background:var(--ambar);color:var(--cofre)}
+  :focus-visible{outline:2px solid var(--ambar);outline-offset:3px;border-radius:3px}
+
+  header{display:flex;align-items:center;gap:12px;padding:24px 0 18px;border-bottom:1px solid var(--linha)}
+  .rosa{width:30px;height:30px;flex:0 0 auto}
+  header h1{font-size:18px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  header .back{margin-left:auto;font-size:12.5px;text-decoration:none;color:var(--giz-2)}
+  header .back:hover{color:var(--ambar)}
+
+  h2{font-size:clamp(26px,5vw,38px);font-weight:800;letter-spacing:-.03em;line-height:1.06;margin:40px 0 10px}
+  .lead{font-size:15px;color:var(--giz-2);max-width:58ch}
+
+  section{margin-top:38px;padding-top:26px;border-top:1px solid var(--linha)}
+  section h3{font-size:13px;letter-spacing:.04em;color:var(--giz);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:9px}
+  section h3 i{font-style:normal;color:var(--ambar);font-family:'Spline Sans Mono',monospace;font-size:13px}
+  p{font-size:14.5px;color:var(--giz-2);margin-bottom:13px}
+  p b{color:var(--giz);font-weight:600}
+  ul{margin:0 0 13px 0;padding-left:0;list-style:none}
+  li{font-size:14px;color:var(--giz-2);padding:8px 0 8px 18px;border-bottom:1px solid var(--linha);position:relative}
+  li::before{content:"›";position:absolute;left:0;color:var(--ambar)}
+  li b{color:var(--giz);font-weight:600}
+  .form{font-family:'Spline Sans Mono',monospace;font-size:12.5px;color:var(--aco);background:var(--cofre-2);border:1px solid var(--linha);border-radius:6px;padding:16px 18px;margin:6px 0 16px;white-space:pre-wrap;line-height:1.7;overflow-x:auto}
+  .form .neg{color:var(--carimbo)}
+  .form .base{color:#7fbfa6}
+  .pill{display:inline-block;font-family:'Spline Sans Mono',monospace;font-size:11px;padding:2px 7px;border-radius:3px;margin-right:4px}
+  .pill.com{color:#7fbfa6;background:rgba(44,91,79,.18);border:1px solid rgba(44,91,79,.4)}
+  .pill.spr{color:var(--carimbo);background:rgba(178,58,43,.1);border:1px solid rgba(178,58,43,.3)}
+  footer{margin-top:48px;font-size:11.5px;color:var(--giz-2);font-family:'Spline Sans Mono',monospace;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <svg class="rosa" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="18.5" fill="none" stroke="rgba(203,211,199,.22)" stroke-width="1"/>
+      <polygon points="20,4 23,20 20,17 17,20" fill="#B23A2B"/>
+      <polygon points="20,36 17,20 20,23 23,20" fill="#E0922E"/>
+      <circle cx="20" cy="20" r="1.8" fill="#CBD3C7"/>
+    </svg>
+    <h1>Bússola · metodologia</h1>
+    <a class="back" href="index.html">← voltar à calculadora</a>
+  </header>
+
+  <h2>Honestidade é o moat.</h2>
+  <p class="lead">Esta página existe porque a credibilidade da Bússola depende de você poder auditar cada número. Sem marketing: aqui está exatamente de onde vêm os dados, como o líquido é calculado e por que o ranking nunca é vendido.</p>
+
+  <section>
+    <h3><i>01</i> De onde vem cada número</h3>
+    <ul>
+      <li><b>Câmbio comercial:</b> PTAX do Banco Central (cotação de <b>venda</b> do fechamento mais recente), via API olinda — oficial e gratuita. Atualizado por uma GitHub Action em dias úteis, ~13h BRT, que reescreve <span class="mono">data/cambio.json</span> e commita. Cada commit é um snapshot datado.</li>
+      <li><b>Tarifas dos provedores:</b> não existe API pública limpa para todas. Por isso <span class="mono">data/tarifas.json</span> é versionado à mão, com <span class="mono">verificadoEm</span> e <span class="mono">fonte</span> por provedor. Cada alteração vira um commit — o histórico de tarifas vive no git e é auditável linha a linha.</li>
+      <li><b>IOF:</b> 0,38% sobre o valor convertido. É <b>tributo</b>, não taxa de provedor — incide igual para todos. Não é o que separa as opções.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3><i>02</i> Cada provedor corta de um jeito (e a UI mostra isso)</h3>
+    <p>Usar um "spread genérico" para todos seria mentira. Existem dois modelos de custo reais, e a Bússola decompõe os dois de forma diferente:</p>
+    <p><span class="pill com">comercial</span> <b>Wise, Husky.</b> Convertem pelo câmbio comercial puro e cobram uma <b>taxa explícita</b> — fee percentual por faixa (Wise) ou taxa operacional com piso fixo (Husky). A fita mostra: <span class="mono">Câmbio comercial → Convertido → Fee/Taxa</span>.</p>
+    <p><span class="pill spr">spread</span> <b>Remessa, banco.</b> Embutem a margem no próprio câmbio: o "câmbio aplicado" já vem pior que o comercial. A fita mostra: <span class="mono">Câmbio comercial → Câmbio aplicado (−x%) → Convertido</span>. Aqui o custo não é uma linha separada — está escondido no câmbio, e nós o expomos.</p>
+    <div class="form">brutoComercial = v × c                       <span class="base">// a régua: o real puro</span>
+
+<span class="base">comercial</span> (Wise, Husky):
+  convertido = v × c                          <span class="base">// câmbio comercial, sem spread</span>
+  custoFee   = fee aplicado (faixa | tier)
+
+<span class="neg">spread</span> (Remessa, banco):
+  efetivo    = c × (1 − spreadPct)            <span class="neg">// spread piora o câmbio</span>
+  convertido = v × efetivo
+  custoFee   = 0                              <span class="neg">// o custo já está no câmbio</span>
+
+iof     = convertido × 0,0038                 <span class="base">// igual pra todos</span>
+tarifa  = tarifaFixaBRL (se houver)
+liquido = convertido − iof − custoFee − tarifa
+mordida = brutoComercial − liquido</div>
+    <p>Tudo isto roda <b>no seu navegador</b>. Nenhum dado seu é enviado a lugar nenhum — não há backend, banco ou servidor.</p>
+  </section>
+
+  <section>
+    <h3><i>03</i> A regra de neutralidade</h3>
+    <p>O ranking é <b>só matemática</b>: ordenamos por <span class="mono">liquido</span> decrescente. Vence quem deixa mais real no seu bolso para aquele valor, moeda e câmbio — sempre, sem exceção. Se o banco entregasse mais, o banco viria em primeiro.</p>
+    <p>O líquido <b>não conhece</b> o link de afiliado. Zerar todos os links de afiliado produz exatamente o mesmo ranking — isso é testado automaticamente. Em valores baixos, a taxa fixa da Husky pode torná-la pior que a Remessa; o ranking reflete esse <b>flip</b>, mesmo que a Husky seja parceira.</p>
+  </section>
+
+  <section>
+    <h3><i>04</i> Divulgação de afiliados</h3>
+    <p>Alguns provedores têm programa de afiliado. Quando há link, a fita mostra <b>"Abrir conta"</b>, e logo abaixo: <span class="mono">"link de afiliado · não altera o ranking"</span>. Se o link ainda não existe, o botão fica desabilitado ("em breve"). O banco tradicional não tem afiliado — mostra apenas "conta via gerente / agência", sem botão.</p>
+    <p>Afiliados pagam as contas da Bússola. O que eles <b>não</b> compram é posição: a ordem é definida antes de qualquer link entrar na tela. Essa separação é o produto.</p>
+  </section>
+
+  <footer>
+    fonte câmbio: PTAX/BACEN (olinda) · tarifas: data/tarifas.json versionado no git<br>
+    tributo: IOF 0,38% sobre o convertido · cálculo 100% client-side · sem coleta de dados<br>
+    <a href="index.html">← voltar à calculadora</a>
+  </footer>
+
+</div>
+</body>
+</html>

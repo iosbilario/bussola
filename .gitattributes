@@ -1,0 +1,4 @@
+# Normaliza tudo para LF — a Action roda em Linux (bash não tolera CRLF).
+* text=auto eol=lf
+*.png binary
+*.jpg binary

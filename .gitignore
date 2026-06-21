@@ -1,0 +1,11 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# dependências (não usamos, mas por segurança)
+node_modules/
+
+# artefatos temporários de teste local
+_data_hidden/
+*.log

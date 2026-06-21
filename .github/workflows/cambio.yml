@@ -1,0 +1,37 @@
+name: Atualiza câmbio PTAX
+
+# Câmbio comercial oficial (PTAX/BACEN) → data/cambio.json
+# Roda em dias úteis ~13h BRT (16:00 UTC), depois do fechamento PTAX,
+# e pode ser disparado manualmente para teste (workflow_dispatch).
+on:
+  schedule:
+    - cron: "0 16 * * 1-5"   # seg–sex, 16:00 UTC ≈ 13:00 BRT
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cambio
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Buscar PTAX e reescrever data/cambio.json
+        run: node scripts/update-cambio.js
+
+      - name: Commitar se houve mudança
+        run: |
+          if [[ -n "$(git status --porcelain data/cambio.json)" ]]; then
+            git config user.name  "bussola-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add data/cambio.json
+            git commit -m "câmbio: PTAX $(date -u +%Y-%m-%d) [skip ci]"
+            git push
+          else
+            echo "Sem mudança no câmbio — nada a commitar."
+          fi

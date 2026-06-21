@@ -1,0 +1,21 @@
+{
+  "iof": 0.0038,
+  "provedores": [
+    { "id":"wise", "nome":"Wise", "sub":"recebimento multimoeda",
+      "modelo":"comercial", "afiliado":true,
+      "fee":{ "tipo":"percent_faixa", "faixas":[{"ateMoeda":5000,"pct":0.0060},{"ateMoeda":null,"pct":0.0045}] },
+      "linkAfiliado":"", "fonte":"wise.com/pricing", "verificadoEm":"2026-06-19" },
+    { "id":"husky", "nome":"Husky by Nomad", "sub":"conta global integrada",
+      "modelo":"comercial", "afiliado":true,
+      "fee":{ "tipo":"operacional_tier", "flatMoedaAte":{"limite":1000,"flatMoeda":10}, "pctAcima":0.01 },
+      "linkAfiliado":"", "fonte":"husky.io", "verificadoEm":"2026-06-19" },
+    { "id":"remessa", "nome":"Remessa Online", "sub":"foco em PJ exportador",
+      "modelo":"spread", "afiliado":true,
+      "fee":{ "tipo":"spread", "spreadPct":0.012, "tarifaFixaBRL":0 },
+      "linkAfiliado":"", "fonte":"remessaonline.com.br", "verificadoEm":"2026-06-19" },
+    { "id":"banco", "nome":"Banco tradicional", "sub":"ordem de pagamento",
+      "modelo":"spread", "afiliado":false,
+      "fee":{ "tipo":"spread", "spreadPct":0.038, "tarifaFixaBRL":100 },
+      "linkAfiliado":null, "fonte":"referência de mercado", "verificadoEm":"2026-06-19" }
+  ]
+}
